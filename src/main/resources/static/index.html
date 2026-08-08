@@ -1,0 +1,82 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Spring Boot Jenkins Demo</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            text-align: center;
+            padding-top: 100px;
+        }
+
+        .container {
+            background: white;
+            width: 500px;
+            margin: auto;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #2c3e50;
+        }
+
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #message {
+            margin-top: 25px;
+            color: green;
+            font-size: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Spring Boot Application</h1>
+
+    <p>My First Jenkins CI/CD Demo Project</p>
+
+    <button onclick="loadMessage()">
+        Call Spring Boot API
+    </button>
+
+    <div id="message"></div>
+
+</div>
+
+<script>
+
+function loadMessage() {
+
+    fetch('/api/message')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('message').innerText = data;
+        });
+
+}
+
+</script>
+
+</body>
+
+</html>
+
+
