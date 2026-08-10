@@ -1,0 +1,10 @@
+.git
+.gitignore
+.idea
+.vscode
+*.log
+Jenkinsfile2
+src/main/resources/static/index1.html
+
+target/*
+!target/jenkins-demo-0.0.1-SNAPSHOT.jar

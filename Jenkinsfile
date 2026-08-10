@@ -2,92 +2,35 @@ pipeline {
 
     agent any
 
-    options {
-        skipDefaultCheckout(true)
-    }
-
     stages {
 
-        stage('Checkout') {
+        stage('Build and Test') {
             steps {
-                deleteDir()
-
-                echo 'Downloading source code from GitHub...'
-
-                checkout scm
+                sh 'mvn -B clean package'
             }
         }
 
-        stage('Verify Environment') {
+        stage('Build Docker Image') {
             steps {
                 sh '''
-                    echo "===================================="
-                    echo "JENKINS ENVIRONMENT"
-                    echo "===================================="
-
-                    echo "Workspace:"
-                    pwd
-
-                    echo "Running as user:"
-                    whoami
-
-                    echo "Java version:"
-                    java -version
-
-                    echo "Maven version:"
-                    mvn -version
-
-                    echo "Files downloaded from GitHub:"
-                    ls -la
+                    docker build \
+                      -t springboot-jenkins-demo:${BUILD_NUMBER} \
+                      -t springboot-jenkins-demo:latest \
+                      .
                 '''
             }
         }
 
-        stage('Clean') {
-            steps {
-                echo 'Cleaning previous Maven build...'
-
-                sh 'mvn -B clean'
-            }
-        }
-
-        stage('Build and Test') {
-            steps {
-                echo 'Building and testing Spring Boot project...'
-
-                sh 'mvn -B package'
-            }
-        }
-
-        stage('Verify JAR') {
-            steps {
-                echo 'Checking generated JAR...'
-
-                sh 'ls -lh target/*.jar'
-            }
-        }
-
-        stage('Archive Artifact') {
-            steps {
-                archiveArtifacts artifacts: 'target/*.jar',
-                                 fingerprint: true
-            }
-        }
-
-        stage('Deploy') {
+        stage('Deploy Docker Container') {
             steps {
                 sh '''
-                    echo "===================================="
-                    echo "DEPLOYING SPRING BOOT APPLICATION"
-                    echo "===================================="
+                    docker rm -f springboot-jenkins-demo \
+                      >/dev/null 2>&1 || true
 
-                    cp target/jenkins-demo-0.0.1-SNAPSHOT.jar \
-                       /opt/springboot-jenkins-demo-deploy/app.jar.new
-
-                    mv /opt/springboot-jenkins-demo-deploy/app.jar.new \
-                       /opt/springboot-jenkins-demo-deploy/app.jar
-
-                    sudo /usr/bin/systemctl restart jenkins-demo.service
+                    docker run -d \
+                      --name springboot-jenkins-demo \
+                      -p 8081:8081 \
+                      springboot-jenkins-demo:${BUILD_NUMBER}
                 '''
             }
         }
@@ -95,50 +38,32 @@ pipeline {
         stage('Health Check') {
             steps {
                 sh '''
-                    echo "Checking Spring Boot service..."
-
-                    sudo /usr/bin/systemctl is-active jenkins-demo.service
-
                     i=1
 
                     while [ "$i" -le 15 ]
                     do
-
-                        if curl -fsS http://127.0.0.1:8081/api/message
+                        if curl -fsS http://127.0.0.1:8081/api/status
                         then
                             echo ""
-                            echo "===================================="
-                            echo "APPLICATION HEALTH CHECK PASSED"
-                            echo "===================================="
+                            echo "Docker container is healthy."
                             exit 0
                         fi
 
-                        echo "Application not ready yet..."
-                        echo "Waiting 2 seconds..."
-
+                        echo "Waiting for Spring Boot container..."
                         sleep 2
 
                         i=$((i + 1))
-
                     done
 
-                    echo "APPLICATION HEALTH CHECK FAILED"
+                    echo "Application health check failed."
+
+                    docker logs \
+                      --tail 100 \
+                      springboot-jenkins-demo
 
                     exit 1
                 '''
             }
-        }
-
-    }
-
-    post {
-
-        success {
-            echo 'BUILD AND DEPLOYMENT SUCCESSFUL'
-        }
-
-        failure {
-            echo 'BUILD OR DEPLOYMENT FAILED'
         }
 
     }
