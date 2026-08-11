@@ -5,7 +5,9 @@ WORKDIR /app
 
 COPY target/jenkins-demo-0.0.1-SNAPSHOT.jar app.jar
 
-EXPOSE 8081
+ENV SERVER_PORT=8082
+
+EXPOSE 8082
 
 USER 10001
 
