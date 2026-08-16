@@ -28,10 +28,26 @@ public class FeatureController {
 
         status.put("application", "springboot-jenkins-demo");
         status.put("status", "UP");
-        status.put("version", "2.1");
+        status.put("version", "2.2");
         status.put("deployment", "GitHub -> Jenkins -> systemd");
         status.put("serverTime", OffsetDateTime.now().toString());
 
         return status;
     }
+
+@GetMapping("/api/cicd")
+public Map<String, String> cicdInfo() {
+
+    Map<String, String> info = new LinkedHashMap<>();
+
+    info.put("source", "GitLab");
+    info.put("trigger", "Jenkins Poll SCM");
+    info.put("build", "Maven");
+    info.put("deployment", "Docker");
+    info.put("status", "Automatic CI/CD Enabled");
+
+    return info;
+}
+
+
 }
