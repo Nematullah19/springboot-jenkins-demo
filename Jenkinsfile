@@ -27,7 +27,7 @@ pipeline {
 
                     docker run -d \
                       --name springboot-jenkins-demo \
-                      -p 8083:8081 \
+                      -p 8082:8081 \
                       springboot-jenkins-demo:${BUILD_NUMBER}
                 '''
             }
