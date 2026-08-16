@@ -1,7 +1,10 @@
 pipeline {
 
     agent any
-
+	
+	options {
+    disableConcurrentBuilds()
+	}
     stages {
 
         stage('Build and Test') {
@@ -34,26 +37,34 @@ pipeline {
         }
 
         stage('Health Check') {
-            steps {
-                sh '''
-                    i=1
+          steps {
+        sh '''
+            i=1
 
-                    while [ "$i" -le 15 ]
-                    do
-                        if curl -fsS http://127.0.0.1:8082/api/status
-                        then
-                            exit 0
-                        fi
+            while [ "$i" -le 15 ]
+            do
+                if curl -fsS http://127.0.0.1:8082/api/status
+                then
+                    echo "Application is healthy."
+                    exit 0
+                fi
 
-                        sleep 2
-                        i=$((i + 1))
-                    done
+                echo "Waiting for application..."
+                sleep 2
+                i=$((i + 1))
+            done
 
-                    exit 1
-                '''
-            }
-        }
+            echo "Application health check failed."
 
+            docker ps -a
+            docker logs --tail 100 springboot-jenkins-demo
+
+            exit 1
+        '''
+         }
+	}
+			
+            
     }
 
 }
