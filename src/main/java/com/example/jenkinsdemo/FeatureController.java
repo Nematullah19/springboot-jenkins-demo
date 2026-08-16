@@ -28,7 +28,7 @@ public class FeatureController {
 
         status.put("application", "springboot-jenkins-demo");
         status.put("status", "UP");
-        status.put("version", "2.4");
+        status.put("version", "2.5");
         status.put("deployment", "GitHub -> Jenkins -> systemd");
         status.put("serverTime", OffsetDateTime.now().toString());
 
