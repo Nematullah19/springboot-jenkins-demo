@@ -40,7 +40,7 @@ pipeline {
 
                     while [ "$i" -le 15 ]
                     do
-                        if curl -fsS http://127.0.0.1:8081/api/status
+                        if curl -fsS http://127.0.0.1:8082/api/status
                         then
                             exit 0
                         fi
