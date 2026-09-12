@@ -31,6 +31,6 @@ class FeatureControllerTest {
                 controller.status();
 
         assertEquals("UP", response.get("status"));
-        assertEquals("2.7", response.get("version"));
+        assertEquals("2.8", response.get("version"));
     }
 }
