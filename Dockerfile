@@ -1,5 +1,14 @@
+FROM eclipse-temurin:21-jre-noble
 
-FROM eclipse-temurin:21-jre-ubi9-minimal
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        softhsm2 \
+        opensc && \
+    rm -rf /var/lib/apt/lists/* && \
+    chmod 755 /etc/softhsm && \
+    chmod 755 /var/lib/softhsm && \
+    mkdir -p /etc/hsm-lab && \
+    chmod 755 /etc/hsm-lab
 
 WORKDIR /app
 
